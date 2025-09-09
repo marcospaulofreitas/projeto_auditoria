@@ -25,11 +25,11 @@ class QualityCasesController < ApplicationController
     @quality_case.auditor = current_operator
     
     if params[:commit] == "Enviar para Contato"
-      @quality_case.status = "Aguardando contato com o cliente"
+      @quality_case.status = "Aguardando contato"
     end
     
     if @quality_case.save
-      if @quality_case.status == "Aguardando contato com o cliente"
+      if @quality_case.status == "Aguardando Contato"
         @quality_case.start_timer_for_status(@quality_case.status)
       end
       redirect_to quality_cases_path
@@ -234,7 +234,7 @@ class QualityCasesController < ApplicationController
     {
       total: cases.count,
       novo: cases.where(status: "Novo").count,
-      aguardando_contato: cases.where(status: "Aguardando contato com o cliente").count,
+      aguardando_contato: cases.where(status: "Aguardando Contato").count,
       em_analise: cases.where(status: "Em análise pela Qualidade").count,
       aguardando_retorno: cases.where(status: "Aguardando retorno ao cliente").count,
       aguardando_aprovacao: cases.where(status: "Aguardando aprovação do gestor").count,

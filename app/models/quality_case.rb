@@ -15,7 +15,7 @@ class QualityCase < ApplicationRecord
   def self.statuses
     {
       "Novo" => "Novo",
-      "Aguardando contato com o cliente" => "Aguardando contato com o cliente",
+      "Aguardando contato" => "Aguardando contato",
       "Em análise pela Qualidade" => "Em análise pela Qualidade", 
       "Aguardando retorno ao cliente" => "Aguardando retorno ao cliente",
       "Aguardando aprovação do gestor" => "Aguardando aprovação do gestor",
@@ -39,7 +39,7 @@ class QualityCase < ApplicationRecord
     case status
     when "Novo"
       # Não faz transição automática
-    when "Aguardando contato com o cliente"
+    when "Aguardando contato"
       if can_advance_from_contact?
         update_column(:status, "Em análise pela Qualidade")
         start_timer_for_status("Em análise pela Qualidade")
@@ -53,7 +53,7 @@ class QualityCase < ApplicationRecord
   
   def start_timer_for_status(new_status)
     case new_status
-    when "Aguardando contato com o cliente"
+    when "Aguardando contato"
       update_column(:contato_started_at, Time.current)
     when "Em análise pela Qualidade"
       update_column(:analise_started_at, Time.current)
@@ -62,7 +62,7 @@ class QualityCase < ApplicationRecord
   
   def contato_time_remaining
     return nil unless contato_started_at
-    return 0 if !["Aguardando contato com o cliente"].include?(status)
+    return 0 if !["Aguardando contato"].include?(status)
     
     elapsed = Time.current - contato_started_at
     remaining = (30 * 60) - elapsed # 30 minutos em segundos
@@ -107,7 +107,7 @@ class QualityCase < ApplicationRecord
     case status
     when "Novo"
       ["cancelar", "enviar_para_contato"]
-    when "Aguardando contato com o cliente"
+    when "Aguardando contato"
       if can_advance_from_contact?
         ["cancelar", "enviar_para_analise"]
       else

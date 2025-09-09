@@ -23,7 +23,7 @@
       </div>
       <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
         <h3 class="text-xs font-medium text-slate-500">Aguardando Contato</h3>
-        <%= link_to quality_cases_path(status: "Aguardando contato com o cliente"), class: "block" do %>
+        <%= link_to quality_cases_path(status: "Aguardando Contato"), class: "block" do %>
           <p class="text-xl font-bold text-yellow-600 mt-2 hover:text-yellow-500 cursor-pointer"><%= @kpis[:aguardando_contato] %></p>
         <% end %>
       </div>
@@ -84,18 +84,18 @@
               
               <div class="flex items-center justify-between gap-2 mb-4 h-5">
                 <div>
-                  <% if quality_case.status == "Aguardando contato com o cliente" && quality_case.contato_started_at %>
-                    <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded timer-element" data-start-time="<%= quality_case.contato_started_at.to_i %>">
+                  <% if quality_case.status == "Aguardando contato" && quality_case.contato_started_at %>
+                    <span class="text-xs px-2 py-2 bg-yellow-100 text-yellow-700 rounded border-2 border-current w-28 h-8 flex items-center justify-center timer-element" data-start-time="<%= quality_case.contato_started_at.to_i %>">
                       ⏱ 00:00
                     </span>
                   <% elsif quality_case.status == "Em análise pela Qualidade" && quality_case.analise_started_at %>
-                    <span class="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded timer-element" data-start-time="<%= quality_case.analise_started_at.to_i %>">
+                    <span class="text-xs px-2 py-2 bg-amber-100 text-amber-700 rounded border-2 border-current w-28 h-8 flex items-center justify-center timer-element" data-start-time="<%= quality_case.analise_started_at.to_i %>">
                       ⏱ 00:00
                     </span>
                   <% end %>
                 </div>
-                <div class="bg-gray-50 border border-gray-200 rounded px-2 py-1">
-                  <p class="text-xs text-gray-800"><%= quality_case.status %></p>
+                <div class="bg-gray-50 border-2 border-gray-400 rounded px-2 py-2 w-36 h-8 flex items-center justify-center status-container" data-start-time="<%= quality_case.contato_started_at&.to_i || quality_case.analise_started_at&.to_i %>">
+                  <p class="text-xs text-gray-800 status-text"><%= quality_case.status %></p>
                 </div>
               </div>
               <p class="text-sm text-slate-500 mb-1">Cliente: <%= quality_case.cliente %></p>
@@ -112,9 +112,9 @@
                   <% when "Novo" %>
                     <%= link_to "Alterar", edit_quality_case_path(quality_case), 
                                class: "text-sm font-medium text-blue-600 hover:text-blue-800" %>
-                  <% when "Aguardando contato com o cliente" %>
-                    <%= link_to "Realizar Contato", realizar_contato_quality_case_path(quality_case), 
-                               class: "text-sm font-medium text-green-600 hover:text-green-800" %>
+                  <% when "Aguardando contato" %>
+                    <%= link_to "Contato", realizar_contato_quality_case_path(quality_case), 
+                               class: "text-sm font-medium text-gray-600 hover:text-green-600" %>
                   <% when "Em análise pela Qualidade" %>
                     <%= link_to "Analisar", realizar_analise_quality_case_path(quality_case), 
                                class: "text-sm font-medium text-purple-600 hover:text-purple-800" %>
@@ -131,7 +131,7 @@
                                class: "text-sm font-medium text-red-600 hover:text-red-800" %>
                   <% end %>
                   <%= link_to "Detalhes", quality_case_path(quality_case), 
-                             class: "text-sm font-medium text-amber-600 hover:text-amber-800" %>
+                             class: "text-sm font-medium text-gray-600 hover:text-blue-600" %>
               </div>
             </div>
           <% end %>
@@ -168,6 +168,27 @@ function updateTimers() {
         // Verde se abaixo de 30 minutos
         element.className = element.className.replace(/bg-yellow-100|bg-amber-100|bg-red-100|text-yellow-700|text-amber-700|text-red-700/g, '');
         element.className += ' bg-green-100 text-green-700';
+      }
+    }
+  });
+  
+  // Atualizar cores dos containers de status
+  document.querySelectorAll('.status-container').forEach(container => {
+    const startTime = parseInt(container.dataset.startTime);
+    const statusText = container.querySelector('.status-text');
+    
+    if (startTime && statusText) {
+      const now = Math.floor(Date.now() / 1000);
+      const elapsed = now - startTime;
+      
+      if (elapsed > 1800) {
+        // Vermelho se passou de 30 minutos
+        container.className = 'bg-red-100 border-2 border-red-700 rounded px-2 py-2 w-36 h-8 flex items-center justify-center status-container';
+        statusText.className = 'text-xs text-red-700 status-text';
+      } else {
+        // Verde se abaixo de 30 minutos
+        container.className = 'bg-green-100 border-2 border-green-700 rounded px-2 py-2 w-36 h-8 flex items-center justify-center status-container';
+        statusText.className = 'text-xs text-green-700 status-text';
       }
     }
   });
