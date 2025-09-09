@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  quality_case: one
+  data_contato: 2025-09-03
+  hora_contato: 2025-09-03 10:11:50
+  contato_com: MyString
+  registro_contato: MyText
+
+two:
+  quality_case: two
+  data_contato: 2025-09-03
+  hora_contato: 2025-09-03 10:11:50
+  contato_com: MyString
+  registro_contato: MyText

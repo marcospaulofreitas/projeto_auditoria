@@ -1,0 +1,14 @@
+pt-BR:
+  activerecord:
+    errors:
+      messages:
+        blank: "não pode ficar em branco"
+        invalid: "é inválido"
+        inclusion: "não está incluído na lista"
+    attributes:
+      operator:
+        nome: "Nome"
+        email: "Email"
+        funcao: "Função"
+        password: "Senha"
+        password_confirmation: "Confirmação da senha"

@@ -1,0 +1,128 @@
+<div class="max-w-4xl mx-auto">
+  <!-- Cabeçalho -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-4">
+      <%= link_to "← Dashboard", quality_cases_path, class: "text-gray-600 hover:text-gray-900 text-sm" %>
+    </div>
+    <span class="text-sm font-semibold px-3 py-1 rounded-full <%= status_color(@quality_case.status) %>">
+      <%= @quality_case.status %>
+    </span>
+  </div>
+
+  <!-- Corpo do Documento -->
+  <div class="bg-white rounded-lg shadow-lg border border-gray-200">
+    <div class="p-8 sm:p-10">
+      <!-- Título do Documento -->
+      <h1 class="text-3xl font-bold text-center text-slate-900 mb-10">Detalhes da Avaliação</h1>
+
+      <!-- Seção de Dados Gerais -->
+      <section class="mb-8 pb-8 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">Dados Gerais</h2>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 text-sm">
+          <div class="p-2">
+            <dt class="font-medium text-slate-500">Número do Chamado</dt>
+            <dd class="text-slate-900 font-semibold"><%= @quality_case.numero_chamado %></dd>
+          </div>
+          <div class="p-2">
+            <dt class="font-medium text-slate-500">Cliente</dt>
+            <dd class="text-slate-900"><%= @quality_case.cliente %></dd>
+          </div>
+          <div class="p-2">
+            <dt class="font-medium text-slate-500">Empresa</dt>
+            <dd class="text-slate-900"><%= @quality_case.empresa %></dd>
+          </div>
+          <div class="p-2">
+            <dt class="font-medium text-slate-500">Técnico</dt>
+            <dd class="text-slate-900"><%= @quality_case.tecnico %></dd>
+          </div>
+          <div class="p-2">
+            <dt class="font-medium text-slate-500">Equipe</dt>
+            <dd class="text-slate-900"><%= @quality_case.team.nome %></dd>
+          </div>
+          <div class="p-2">
+            <dt class="font-medium text-slate-500">Auditor Responsável</dt>
+            <dd class="text-slate-900"><%= @quality_case.auditor&.nome || 'Não definido' %></dd>
+          </div>
+          <div class="p-2">
+            <dt class="font-medium text-slate-500">Data do Chamado</dt>
+            <dd class="text-slate-900"><%= @quality_case.data_chamado&.strftime("%d/%m/%Y") %></dd>
+          </div>
+          <div class="p-2">
+            <dt class="font-medium text-slate-500">Data da Pesquisa</dt>
+            <dd class="text-slate-900"><%= @quality_case.data_pesquisa_satisfacao&.strftime("%d/%m/%Y") %></dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Seção de Insatisfação -->
+      <section class="mb-8 pb-8 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">Descrição da Insatisfação</h2>
+        <div class="prose prose-sm max-w-none text-slate-700">
+          <%= simple_format(@quality_case.insatisfacao_cliente) %>
+        </div>
+      </section>
+
+      <!-- Seção de Análise da Qualidade -->
+      <% if @quality_case.analise_atendimento.present? %>
+        <section class="mb-8 pb-8 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">Análise da Qualidade</h2>
+          <dl class="space-y-4 text-sm">
+            <div>
+              <dt class="font-medium text-slate-500">Análise do Atendimento</dt>
+              <dd class="prose prose-sm max-w-none text-slate-700 mt-1"><%= simple_format(@quality_case.analise_atendimento) %></dd>
+            </div>
+            <div>
+              <dt class="font-medium text-slate-500">Análise de Conhecimento</dt>
+              <dd class="prose prose-sm max-w-none text-slate-700 mt-1"><%= simple_format(@quality_case.analise_conhecimento) %></dd>
+            </div>
+            <div>
+              <dt class="font-medium text-slate-500">Análise Procedimental</dt>
+              <dd class="prose prose-sm max-w-none text-slate-700 mt-1"><%= simple_format(@quality_case.analise_procedimental) %></dd>
+            </div>
+            <div>
+              <dt class="font-medium text-slate-500">Ações Corretivas Propostas</dt>
+              <dd class="prose prose-sm max-w-none text-slate-700 mt-1"><%= simple_format(@quality_case.acoes_corretivas_propostas) %></dd>
+            </div>
+          </dl>
+        </section>
+      <% end %>
+
+      <!-- Histórico de Contatos -->
+      <% if @quality_case.contacts.any? %>
+        <section class="mb-8">
+          <h2 class="text-lg font-semibold text-slate-800 border-b pb-2 mb-4">Histórico de Contatos</h2>
+          <div class="space-y-4">
+            <% @quality_case.contacts.order(created_at: :desc).each_with_index do |contact, index| %>
+              <div class="border border-slate-200 rounded-md p-4 text-sm">
+                <div class="flex justify-between items-start mb-2">
+                  <h4 class="font-medium text-slate-700">Contato #<%= @quality_case.contacts.count - index %></h4>
+                  <span class="text-xs text-slate-500">
+                    <%= contact.created_at.strftime("%d/%m/%Y às %H:%M") %>
+                  </span>
+                </div>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                  <div>
+                    <dt class="font-medium text-slate-500">Contato com:</dt>
+                    <dd class="text-slate-800"><%= contact.contato_com %></dd>
+                  </div>
+                  <div class="col-span-2 mt-2">
+                    <dt class="font-medium text-slate-500">Registro:</dt>
+                    <dd class="prose prose-sm max-w-none text-slate-700 mt-1"><%= simple_format(contact.registro_contato) %></dd>
+                  </div>
+                </dl>
+              </div>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+    </div>
+
+    <!-- Rodapé de Ações -->
+    <% if @quality_case.status == "Aguardando aprovação do gestor" && current_operator.funcao == 'Gestor' %>
+      <div class="bg-gray-50 px-8 py-4 border-t border-gray-200 flex justify-end gap-4 rounded-b-lg">
+        <%= link_to "Recusar Análise", gestao_quality_case_path(@quality_case), class: "px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50" %>
+        <%= link_to "Aprovar Análise", gestao_quality_case_path(@quality_case), class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700" %>
+      </div>
+    <% end %>
+  </div>
+</div>

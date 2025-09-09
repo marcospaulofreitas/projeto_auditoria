@@ -1,0 +1,52 @@
+<div class="p-4 sm:p-6 lg:p-8">
+  <header class="flex items-center justify-between mb-6">
+    <%= link_to "← Dashboard", quality_cases_path, class: "text-gray-600 hover:text-gray-900 text-sm" %>
+    <%= link_to new_team_path, class: "flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors shadow-md" do %>
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+    <% end %>
+  </header>
+
+  <div class="bg-white shadow-lg rounded-xl border border-gray-200">
+    <header class="p-6 border-b border-gray-200">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold tracking-tight text-gray-900">Equipes</h1>
+        <% if params[:nome].present? %>
+          <%= link_to "Limpar filtros", teams_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
+        <% end %>
+      </div>
+      
+      <!-- Filtros -->
+      <%= form_with url: teams_path, method: :get, local: true, class: "flex gap-2 items-end" do |form| %>
+        <div>
+          <%= form.label :nome, "Nome", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.text_field :nome, value: params[:nome], placeholder: "Buscar por nome...", 
+                             class: "border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-gray-500 focus:border-gray-500" %>
+        </div>
+        <div>
+          <%= form.submit "Filtrar", class: "px-4 py-2 bg-gray-900 text-white rounded-md text-sm hover:bg-gray-800 transition-colors" %>
+        </div>
+      <% end %>
+    </header>
+
+    <div class="p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <% @teams.each do |team| %>
+          <div class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg hover:-translate-y-px transition-all duration-200 cursor-pointer"
+               data-controller="clickable-row"
+               data-clickable-row-url-value="<%= edit_team_path(team) %>"
+               data-action="click->clickable-row#visit">
+            
+            <h3 class="font-bold text-md text-slate-800 truncate"><%= team.nome %></h3>
+
+            <dl class="mt-2 text-xs text-slate-600 space-y-1">
+              <div>
+                <dt class="inline font-medium">Membros: </dt>
+                <dd class="inline"><%= team.operators.count %></dd>
+              </div>
+            </dl>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

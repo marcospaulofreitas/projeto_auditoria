@@ -1,0 +1,103 @@
+<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-8 max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <h2 class="text-2xl font-bold text-slate-900">Retorno ao Cliente</h2>
+    <%= link_to "Voltar", quality_cases_path, 
+               class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+  </div>
+
+  <!-- Informações do Caso -->
+  <div class="bg-slate-50 border border-slate-200 rounded-md p-6 mb-6">
+    <h3 class="text-lg font-medium text-slate-700 mb-4">Informações do Caso</h3>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+      <div>
+        <span class="font-medium text-slate-600">Chamado:</span>
+        <p class="text-slate-900"><%= @quality_case.numero_chamado %></p>
+      </div>
+      <div>
+        <span class="font-medium text-slate-600">Cliente:</span>
+        <p class="text-slate-900"><%= @quality_case.cliente %></p>
+      </div>
+      <div>
+        <span class="font-medium text-slate-600">Técnico:</span>
+        <p class="text-slate-900"><%= @quality_case.tecnico %></p>
+      </div>
+      <div>
+        <span class="font-medium text-slate-600">Equipe:</span>
+        <p class="text-slate-900"><%= @quality_case.team&.nome %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Histórico de Contatos de Retorno -->
+  <% if @quality_case.contacts.where("registro_contato LIKE ?", "%retorno%").any? %>
+    <div class="mb-6">
+      <h3 class="text-lg font-medium text-slate-700 mb-4">Histórico de Retornos</h3>
+      <div class="space-y-3">
+        <% @quality_case.contacts.where("registro_contato LIKE ?", "%retorno%").order(:created_at).each_with_index do |contact, index| %>
+          <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-sm font-medium text-slate-700">Retorno #<%= index + 1 %></span>
+              <span class="text-xs text-slate-500">
+                <%= contact.data_contato&.strftime("%d/%m/%Y") %> às <%= contact.hora_contato&.strftime("%H:%M") %>
+              </span>
+            </div>
+            <div class="text-sm">
+              <p class="text-slate-700"><%= contact.registro_contato %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Novo Retorno -->
+  <%= form_with model: [@quality_case, Contact.new], local: true, url: registrar_retorno_quality_case_path(@quality_case) do |form| %>
+    <div class="bg-green-50 border border-green-200 rounded-md p-6 mb-6">
+      <h3 class="text-lg font-medium text-green-800 mb-4">Novo Retorno ao Cliente</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+        <div>
+          <%= form.label :data_contato, "Data do Retorno", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.date_field :data_contato, value: Date.current, readonly: true,
+                             class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 cursor-not-allowed sm:text-sm" %>
+        </div>
+        
+        <div>
+          <%= form.label :hora_contato, "Hora do Retorno", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.time_field :hora_contato, value: Time.current.strftime("%H:%M"), readonly: true,
+                             class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 cursor-not-allowed sm:text-sm" %>
+        </div>
+        
+        <div>
+          <%= form.label :contato_com, "Contato com", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :contato_com, placeholder: "Nome da pessoa atendida",
+                             class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <%= form.label :registro_contato, "Registro do Retorno", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_area :registro_contato, rows: 4, placeholder: "Descreva o retorno dado ao cliente sobre as ações tomadas...",
+                          class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
+      </div>
+    </div>
+
+    <!-- Botões -->
+    <div class="flex justify-end gap-4">
+      <%= link_to "Cancelar", quality_cases_path, 
+                 class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+      
+      <%= form.submit "Sucesso - Retorno Realizado", 
+                     name: "action", value: "retorno_sucesso",
+                     class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700" %>
+      
+      <%= form.submit "Insucesso - Não Conseguiu Contato", 
+                     name: "action", value: "retorno_insucesso",
+                     class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700" %>
+      
+      <%= form.submit "Enviar para Gestão", 
+                     name: "action", value: "enviar_gestao",
+                     class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700" %>
+    </div>
+  <% end %>
+</div>

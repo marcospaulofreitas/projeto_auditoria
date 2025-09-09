@@ -1,0 +1,38 @@
+<div class="p-4 sm:p-6 lg:p-8">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900"><%= @team.nome %></h1>
+      <p class="text-slate-600 mt-1">Gestor: <%= @team.gestor&.nome %></p>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to "Voltar", teams_path, 
+                 class: "px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
+      <%= link_to "Adicionar Técnico", new_team_technician_path(@team), 
+                 class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700" %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+    <h2 class="text-xl font-bold text-slate-900 mb-6">Técnicos da Equipe</h2>
+    
+    <% if @team.technicians.any? %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @team.technicians.each do |technician| %>
+          <div class="border border-slate-200 rounded-md p-4 bg-slate-50">
+            <div class="flex justify-between items-center">
+              <h3 class="font-medium text-slate-900"><%= technician.nome %></h3>
+              <div class="flex gap-2">
+                <%= link_to "Editar", edit_team_technician_path(@team, technician), 
+                           class: "text-xs text-amber-600 hover:text-amber-800" %>
+                <%= link_to "Remover", team_technician_path(@team, technician), method: :delete, 
+                           confirm: "Tem certeza?", class: "text-xs text-red-600 hover:text-red-800" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-slate-500 text-center py-8">Nenhum técnico cadastrado nesta equipe.</p>
+    <% end %>
+  </div>
+</div>

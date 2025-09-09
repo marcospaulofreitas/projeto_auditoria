@@ -1,0 +1,429 @@
+<%= form_with model: quality_case, local: true do |form| %>
+  <!-- Status atual (apenas para edição) -->
+  <% if quality_case.persisted? && quality_case.status.present? %>
+    <div class="bg-slate-50 border border-slate-200 rounded-md p-4 mb-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="text-sm font-medium text-slate-700">Status Atual</h3>
+          <p class="text-lg font-semibold mt-1">
+            <span class="px-3 py-1 rounded-full text-sm <%= status_color(quality_case.status) %>">
+              <%= quality_case.status %>
+            </span>
+          </p>
+        </div>
+        <p class="text-xs text-slate-500">O status será atualizado ao salvar</p>
+      </div>
+    </div>
+  <% end %>
+  
+  <% if quality_case.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+      <h3 class="text-red-800 font-medium">Erros encontrados:</h3>
+      <ul class="text-red-700 text-sm mt-2">
+        <% quality_case.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <%= form.label :numero_chamado, "Número do Chamado", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_field :numero_chamado, required: true, readonly: quality_case.persisted?,
+                         class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.persisted?}" %>
+    </div>
+    
+    <div>
+      <%= form.label :team_id, "Equipe", class: "block text-sm font-medium text-slate-700" %>
+      <% if quality_case.persisted? %>
+        <%= form.text_field :team_name, value: quality_case.team&.nome, readonly: true,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 cursor-not-allowed sm:text-sm" %>
+        <%= form.hidden_field :team_id %>
+      <% else %>
+        <%= form.select :team_id, options_from_collection_for_select(Team.order(:nome), :id, :nome, quality_case.team_id), 
+                       { prompt: "Selecione a equipe..." }, 
+                       { required: true, id: "team_select", class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" } %>
+      <% end %>
+    </div>
+    
+    <div>
+      <%= form.label :tecnico, "Técnico", class: "block text-sm font-medium text-slate-700" %>
+      <% if quality_case.persisted? %>
+        <%= form.text_field :tecnico, readonly: true,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 cursor-not-allowed sm:text-sm" %>
+      <% else %>
+        <%= form.select :tecnico, [], { prompt: "Selecione primeiro a equipe..." }, 
+                       { required: true, id: "technician_select", 
+                         data: { selected_value: quality_case.tecnico },
+                         class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" } %>
+      <% end %>
+    </div>
+    
+    <div>
+      <%= form.label :cliente, "Cliente", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_field :cliente, required: true, readonly: quality_case.persisted?,
+                         class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.persisted?}" %>
+    </div>
+    
+
+    
+    <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :data_chamado, "Data do Chamado", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.date_field :data_chamado, required: true, readonly: quality_case.persisted?,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.persisted?}" %>
+      </div>
+      
+      <div>
+        <%= form.label :data_avaliacao, "Data da Avaliação", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.date_field :data_avaliacao, required: true, readonly: quality_case.persisted?,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.persisted?}" %>
+      </div>
+    </div>
+
+    <div class="md:col-span-2">
+      <%= form.label :insatisfacao_cliente, "Insatisfação do Cliente", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_area :insatisfacao_cliente, rows: 3, readonly: quality_case.persisted?,
+                        class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.persisted?}" %>
+    </div>
+
+    <hr class="md:col-span-2 my-2">
+
+    <div class="md:col-span-2">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-slate-700">Registros de Contatos</h3>
+        <button type="button" id="add-contact" class="px-3 py-1 bg-amber-600 text-white text-sm rounded-md hover:bg-amber-700">+ Adicionar Contato</button>
+      </div>
+      
+      <!-- Contatos Existentes (Readonly) -->
+      <% if quality_case.contacts.any? %>
+        <div class="mb-6">
+          <h4 class="text-md font-medium text-slate-600 mb-3">Contatos Registrados (Não Editáveis)</h4>
+          <% quality_case.contacts.order(:data_contato, :hora_contato).each_with_index do |contact, index| %>
+            <div class="border border-slate-300 rounded-md p-4 mb-3 bg-gray-100">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-sm font-medium text-slate-700">Contato #<%= index + 1 %></span>
+                <span class="text-sm text-slate-500">
+                  <%= contact.data_contato.strftime("%d/%m/%Y") %> às <%= contact.hora_contato.strftime("%H:%M") %>
+                </span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+                <div>
+                  <span class="text-xs text-slate-500">Contato com:</span>
+                  <p class="text-sm text-slate-700"><%= contact.contato_com %></p>
+                </div>
+              </div>
+              <div>
+                <span class="text-xs text-slate-500">Registro:</span>
+                <p class="text-sm text-slate-700"><%= contact.registro_contato %></p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      
+      <!-- Novos Contatos (Editáveis) -->
+      <div id="contacts-container">
+        <h4 class="text-md font-medium text-slate-600 mb-3"></h4>
+      </div>
+    </div>
+
+    <hr class="md:col-span-2 my-2">
+
+    <div class="md:col-span-2">
+      <%= form.label :analise_qualidade, "Análise da Qualidade", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_area :analise_qualidade, rows: 3,
+                        class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" %>
+    </div>
+    
+    <div class="md:col-span-2">
+      <%= form.label :acoes_corretivas, "Ações Corretivas", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_area :acoes_corretivas, rows: 3,
+                        class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" %>
+    </div>
+    
+    <div class="md:col-span-2">
+      <%= form.label :retorno_cliente, "Retorno para o Cliente", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_area :retorno_cliente, rows: 3,
+                        class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" %>
+    </div>
+    
+    <div class="md:col-span-2">
+      <%= form.label :retorno_gestor, "Retorno para o Gestor", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_area :retorno_gestor, rows: 3,
+                        class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" %>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-4 mt-8">
+    <%= link_to "Cancelar", quality_cases_path, class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    <%= form.submit "Salvar", 
+                   class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700" %>
+  </div>
+<% end %>
+
+<script data-turbo-permanent>
+function showConfirmationModal(message, onConfirm) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
+  modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold mb-4 text-slate-900">Confirmação</h3>
+      <p class="text-slate-700 mb-6">${message}</p>
+      <div class="flex justify-end gap-4">
+        <button id="cancel-confirm" class="px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50">Cancelar</button>
+        <button id="confirm-action" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700">Confirmar</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  modal.querySelector('#cancel-confirm').addEventListener('click', () => {
+    document.body.removeChild(modal);
+  });
+  
+  modal.querySelector('#confirm-action').addEventListener('click', () => {
+    document.body.removeChild(modal);
+    onConfirm();
+  });
+}
+
+function initializeContacts() {
+  const addButton = document.getElementById('add-contact');
+  const container = document.getElementById('contacts-container');
+  
+  if (!addButton || !container) return;
+  
+  let contactIndex = Date.now();
+  
+  addButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // Verificar se já existe contato pendente
+    const pendingContact = container.querySelector('.contact-entry.border-amber-300');
+    if (pendingContact) {
+      alert('Finalize o contato pendente antes de adicionar um novo.');
+      return;
+    }
+    
+    const newContact = document.createElement('div');
+    newContact.className = 'contact-entry border border-amber-300 rounded-md p-4 mb-4 bg-amber-50';
+    newContact.innerHTML = `
+      <div class="mb-3">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-amber-700">Novo Contato - Preencha e confirme</span>
+          <span class="text-xs text-amber-600">Atenção: Após confirmar não será possível editar</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Data do Contato *</label>
+          <input type="date" name="quality_case[contacts_attributes][${contactIndex}][data_contato]" required
+                 class="contact-field mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Hora do Contato *</label>
+          <input type="time" name="quality_case[contacts_attributes][${contactIndex}][hora_contato]" required
+                 class="contact-field mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Contato com *</label>
+          <input type="text" name="quality_case[contacts_attributes][${contactIndex}][contato_com]" required
+                 class="contact-field mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-slate-700">Registro do Contato (O que foi tratado) *</label>
+        <textarea name="quality_case[contacts_attributes][${contactIndex}][registro_contato]" rows="3" required
+                  class="contact-field mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"></textarea>
+      </div>
+      <div class="flex justify-between">
+        <button type="button" class="remove-contact px-3 py-1 text-sm text-red-600 hover:text-red-800 border border-red-300 rounded-md">Cancelar</button>
+        <button type="button" class="confirm-contact px-3 py-1 text-sm text-white bg-green-600 hover:bg-green-700 rounded-md">Confirmar Contato</button>
+      </div>
+    `;
+    
+    // Inserir no topo (após o título)
+    const title = container.querySelector('h4');
+    if (title && title.nextSibling) {
+      container.insertBefore(newContact, title.nextSibling);
+    } else {
+      container.appendChild(newContact);
+    }
+    contactIndex++;
+  });
+  
+  container.addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-contact')) {
+      e.preventDefault();
+      const contactEntry = e.target.closest('.contact-entry');
+      contactEntry.remove();
+    }
+    
+    if (e.target.classList.contains('confirm-contact')) {
+      e.preventDefault();
+      const contactEntry = e.target.closest('.contact-entry');
+      const fields = contactEntry.querySelectorAll('.contact-field');
+      let allFilled = true;
+      
+      fields.forEach(field => {
+        if (!field.value.trim()) {
+          allFilled = false;
+          field.classList.add('border-red-500');
+        } else {
+          field.classList.remove('border-red-500');
+        }
+      });
+      
+      if (!allFilled) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+      }
+      
+      showConfirmationModal(
+        'Confirma os dados do contato?<br><br><strong>Atenção:</strong> Após confirmar não será possível editar as informações.',
+        function() {
+          fields.forEach(field => {
+            field.readOnly = true;
+            field.classList.add('bg-gray-100', 'cursor-not-allowed');
+          });
+          
+          contactEntry.className = 'contact-entry border border-green-300 rounded-md p-4 mb-4 bg-green-50';
+          contactEntry.querySelector('.confirm-contact').style.display = 'none';
+          contactEntry.querySelector('.remove-contact').style.display = 'none';
+          
+          const confirmedLabel = document.createElement('div');
+          confirmedLabel.innerHTML = '<span class="text-sm font-medium text-green-700">✓ Contato Confirmado</span>';
+          contactEntry.querySelector('.flex.justify-between').appendChild(confirmedLabel);
+        }
+      );
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initializeContacts);
+document.addEventListener('turbo:load', initializeContacts);
+
+// Carregar técnicos por equipe
+function initializeTeamTechnicianSelect() {
+  const teamSelect = document.getElementById('team_select');
+  const technicianSelect = document.getElementById('technician_select');
+  
+  if (!teamSelect || !technicianSelect) return;
+  
+  // Não inicializar se campos estão readonly (edição)
+  if (teamSelect.readOnly || technicianSelect.readOnly) return;
+  
+  // Carregar técnicos se já houver equipe selecionada (edição)
+  if (teamSelect.value) {
+    loadTechnicians(teamSelect.value, technicianSelect.dataset.selectedValue);
+  }
+  
+  teamSelect.addEventListener('change', function() {
+    const teamId = this.value;
+    
+    if (!teamId) {
+      technicianSelect.innerHTML = '<option value="">Selecione primeiro a equipe...</option>';
+      return;
+    }
+    
+    loadTechnicians(teamId);
+  });
+}
+
+function loadTechnicians(teamId, selectedValue = null) {
+  const technicianSelect = document.getElementById('technician_select');
+  
+  fetch(`/operators_by_team/${teamId}`)
+    .then(response => response.json())
+    .then(operators => {
+      technicianSelect.innerHTML = '<option value="">Selecione o técnico...</option>';
+      operators.forEach(op => {
+        const option = document.createElement('option');
+        option.value = op.nome;
+        option.textContent = op.nome;
+        if (selectedValue && op.nome === selectedValue) {
+          option.selected = true;
+        }
+        technicianSelect.appendChild(option);
+      });
+    })
+    .catch(error => {
+      console.error('Erro ao carregar operadores:', error);
+      technicianSelect.innerHTML = '<option value="">Erro ao carregar operadores</option>';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initializeTeamTechnicianSelect);
+document.addEventListener('turbo:load', initializeTeamTechnicianSelect);
+
+// Interceptar submit para mostrar popup de status
+function initializeStatusPopup() {
+  const form = document.querySelector('form');
+  if (!form) return;
+  
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    showStatusSelectionModal(function(selectedStatus) {
+      // Adicionar campo hidden com o status selecionado
+      const statusInput = document.createElement('input');
+      statusInput.type = 'hidden';
+      statusInput.name = 'quality_case[status]';
+      statusInput.value = selectedStatus;
+      form.appendChild(statusInput);
+      
+      // Submeter o formulário
+      form.submit();
+    });
+  });
+}
+
+function showStatusSelectionModal(onConfirm) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
+  modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold mb-4 text-slate-900">Selecionar Status</h3>
+      <p class="text-slate-700 mb-6">Escolha o status para esta avaliação:</p>
+      <div class="space-y-3 mb-6">
+        <label class="flex items-center">
+          <input type="radio" name="status_choice" value="Aguardando contato com o cliente" class="mr-3" checked>
+          <span class="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">Aguardando contato com o cliente</span>
+        </label>
+        <label class="flex items-center">
+          <input type="radio" name="status_choice" value="Em análise pela Qualidade" class="mr-3">
+          <span class="px-3 py-1 rounded-full text-sm bg-amber-100 text-amber-800">Em análise pela Qualidade</span>
+        </label>
+        <label class="flex items-center">
+          <input type="radio" name="status_choice" value="Finalizado pela Qualidade" class="mr-3">
+          <span class="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Finalizado pela Qualidade</span>
+        </label>
+      </div>
+      <div class="flex justify-end gap-4">
+        <button id="cancel-status" class="px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50">Cancelar</button>
+        <button id="confirm-status" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700">Salvar</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  modal.querySelector('#cancel-status').addEventListener('click', () => {
+    document.body.removeChild(modal);
+  });
+  
+  modal.querySelector('#confirm-status').addEventListener('click', () => {
+    const selectedStatus = modal.querySelector('input[name="status_choice"]:checked').value;
+    document.body.removeChild(modal);
+    onConfirm(selectedStatus);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initializeStatusPopup);
+document.addEventListener('turbo:load', initializeStatusPopup);
+</script>

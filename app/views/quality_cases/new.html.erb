@@ -1,0 +1,9 @@
+<div class="p-4 sm:p-6 lg:p-8">
+  <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-8 max-w-6xl mx-auto">
+    <div class="flex items-center gap-4 mb-8">
+      <%= link_to "← Dashboard", quality_cases_path, class: "text-gray-600 hover:text-gray-900 text-sm" %>
+      <h2 class="text-2xl font-bold text-slate-900">Nova Avaliação Negativa</h2>
+    </div>
+    <%= render 'form_avaliacao_negativa', quality_case: @quality_case %>
+  </div>
+</div>

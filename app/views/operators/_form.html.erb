@@ -1,0 +1,225 @@
+<%# app/views/operators/_form.html.erb %>
+<%= form_with(model: operator) do |form| %>
+  <header class="flex items-center justify-between mb-6">
+    <div>
+      <%= link_to "← Operadores", operators_path, class: "text-gray-600 hover:text-gray-900 text-sm" %>
+    </div>
+    <% if operator.persisted? %>
+      <%= link_to "Excluir", operator_path(operator), 
+            class: "text-sm font-medium text-red-600 hover:text-red-800",
+            data: { 
+              controller: "confirm", 
+              action: "click->confirm#confirm", 
+              confirm_message: "Tem certeza que deseja excluir o operador #{operator.nome}?", 
+              turbo_method: "delete" 
+            } %>
+    <% end %>
+  </header>
+
+  <div class="bg-white shadow-lg rounded-xl border border-gray-200">
+    <div class="p-8 space-y-6">
+      <div class="border-b border-gray-200 pb-4 mb-6">
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+          <%= operator.new_record? ? "Novo Operador" : "Editar Operador" %>
+        </h2>
+      </div>
+      <% if operator.errors.any? %>
+        <div class="rounded-md bg-red-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94l-1.72-1.72z" clip-rule="evenodd" /></svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800"><%= pluralize(operator.errors.count, "erro") %> impediram o salvamento:</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul role="list" class="list-disc space-y-1 pl-5">
+                  <% operator.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <%= form.label :nome, 'Nome Completo', class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.text_field :nome, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2" %>
+      </div>
+
+      <div>
+        <%= form.label :email, 'E-mail', class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.email_field :email, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2" %>
+      </div>
+
+      <div>
+        <%= form.label :funcao, 'Função', class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.select :funcao, 
+              [["Selecione a função", ""]] + ["Gestor", "Auditor da Qualidade", "Tecnico do Suporte"], 
+              {}, 
+              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2" %>
+      </div>
+
+      <div id="equipes-container">
+                <div class="flex items-center mb-1">
+          <%= form.label :equipes, 'Equipes Vinculadas', class: "block text-sm font-medium text-gray-700 mr-2" %>
+          <button type="button" id="btn-equipes" class="inline-flex items-center justify-center w-6 h-6 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors shadow-md">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          </button>
+        </div>
+        <div class="mt-1">
+          <div id="equipes-selecionadas" class="mt-3 flex flex-wrap gap-2"></div>
+          <% (@operator&.team_ids || []).each do |team_id| %>
+            <input type="hidden" name="operator[team_ids][]" value="<%= team_id %>" class="team-ids-input">
+          <% end %>
+          <div id="team_ids_container"></div>
+        </div>
+      </div>
+
+      <div>
+        <%= form.label :password, 'Senha', class: "block text-sm font-medium text-gray-700 mb-1" %> <span class="text-xs text-gray-500">(Deixe em branco para não alterar)</span>
+        <%= form.password_field :password, autocomplete: "new-password", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2" %>
+      </div>
+
+      <div>
+        <%= form.label :password_confirmation, 'Confirmar Senha', class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.password_field :password_confirmation, autocomplete: "new-password", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2" %>
+      </div>
+    </div>
+  </div>
+
+  <footer class="flex justify-end gap-4 mt-6">
+    <%= link_to "Cancelar", operators_path, class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    <%= form.submit "Salvar", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer" %>
+  </footer>
+<% end %>
+
+<!-- Modal de Seleção de Equipes -->
+<div id="modal-equipes" class="fixed inset-0 z-50 hidden">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="fixed inset-0 bg-black bg-opacity-50" onclick="fecharModal()"></div>
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full relative z-10">
+      <div class="p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Lista de Equipes Vinculadas</h3>
+        <input type="text" id="pesquisa-equipes" placeholder="Pesquisar equipes..." 
+               class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 text-sm">
+        <div class="max-h-60 overflow-y-auto border border-gray-200 rounded-md p-3">
+          <div id="lista-equipes"></div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-6 py-3 flex justify-end gap-3">
+        <button type="button" onclick="fecharModal()" 
+                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+          Cancelar
+        </button>
+        <button type="button" onclick="aplicarSelecao()" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+          Aplicar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function initializeGrupos() {
+  const gruposDisponiveis = <%= raw Team.all.map { |t| { id: t.id, nome: t.nome } }.to_json %>;
+  const gruposIniciais = <%= raw (@operator&.team_ids || []).to_json %>;
+  let gruposSelecionados = gruposIniciais || [];
+  let gruposTemporarios = [];
+
+  document.getElementById('btn-equipes').addEventListener('click', function() {
+    gruposTemporarios = [...gruposSelecionados];
+    renderizarEquipes();
+    document.getElementById('modal-equipes').classList.remove('hidden');
+  });
+
+  window.fecharModal = function() {
+    document.getElementById('modal-equipes').classList.add('hidden');
+    document.getElementById('pesquisa-equipes').value = '';
+  }
+
+  function renderizarEquipes(filtro = '') {
+    const container = document.getElementById('lista-equipes');
+    const equipesFiltradas = gruposDisponiveis.filter(equipe => 
+      equipe.nome.toLowerCase().includes(filtro.toLowerCase())
+    );
+    container.innerHTML = equipesFiltradas.map(equipe => `
+      <label class="flex items-center py-2 cursor-pointer hover:bg-gray-50 rounded px-2">
+        <input type="checkbox" value="${equipe.id}" 
+               ${gruposTemporarios.includes(equipe.id) ? 'checked' : ''}
+               onchange="toggleEquipe(${equipe.id})" 
+               class="mr-3 rounded border-gray-300">
+        <span class="text-sm text-gray-700">${equipe.nome}</span>
+      </label>
+    `).join('');
+  }
+
+  window.toggleEquipe = function(equipeId) {
+    const index = gruposTemporarios.indexOf(equipeId);
+    if (index > -1) {
+      gruposTemporarios.splice(index, 1);
+    } else {
+      gruposTemporarios.push(equipeId);
+    }
+  }
+
+  window.aplicarSelecao = function() {
+    gruposSelecionados = [...gruposTemporarios];
+    atualizarCamposHidden();
+    renderizarTags();
+    fecharModal();
+  }
+
+  function renderizarTags() {
+    const container = document.getElementById('equipes-selecionadas');
+    const equipesNomes = gruposSelecionados.map(id => 
+      gruposDisponiveis.find(e => e.id === id)
+    ).filter(Boolean);
+    container.innerHTML = equipesNomes.map(equipe => `
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+        ${equipe.nome}
+        <button type="button" onclick="removerEquipe(${equipe.id})" 
+                class="ml-2 text-blue-600 hover:text-blue-800">
+          ×
+        </button>
+      </span>
+    `).join('');
+  }
+
+  window.removerEquipe = function(equipeId) {
+    const index = gruposSelecionados.indexOf(equipeId);
+    if (index > -1) {
+      gruposSelecionados.splice(index, 1);
+      atualizarCamposHidden();
+      renderizarTags();
+    }
+  }
+  
+  function atualizarCamposHidden() {
+    document.querySelectorAll('.team-ids-input').forEach(input => input.remove());
+    document.querySelectorAll('#team_ids_container input').forEach(input => input.remove());
+    const container = document.getElementById('team_ids_container');
+    gruposSelecionados.forEach(teamId => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'operator[team_ids][]';
+      input.value = teamId;
+      input.className = 'team-ids-input';
+      container.appendChild(input);
+    });
+  }
+
+  const pesquisaEquipes = document.getElementById('pesquisa-equipes');
+  if (pesquisaEquipes) {
+    pesquisaEquipes.addEventListener('input', function() {
+      renderizarEquipes(this.value);
+    });
+  }
+
+  renderizarTags();
+}
+
+document.addEventListener('turbo:load', initializeGrupos);
+</script>

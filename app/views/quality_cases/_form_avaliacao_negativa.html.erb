@@ -1,0 +1,161 @@
+<%= form_with model: quality_case, local: true do |form| %>
+  <% if quality_case.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+      <h3 class="text-red-800 font-medium">Erros encontrados:</h3>
+      <ul class="text-red-700 text-sm mt-2">
+        <% quality_case.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Campos do Registro da Avaliação Negativa -->
+  <div class="bg-slate-50 border border-slate-200 rounded-md p-6 mb-6">
+    <h3 class="text-lg font-medium text-slate-700 mb-4">Registro da Avaliação Negativa</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :numero_chamado, "Número do Chamado", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :numero_chamado, required: true, readonly: quality_case.is_readonly?,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.is_readonly?}" %>
+      </div>
+      
+      <div>
+        <%= form.label :team_id, "Equipe", class: "block text-sm font-medium text-slate-700" %>
+        <% if quality_case.is_readonly? %>
+          <%= form.text_field :team_name, value: quality_case.team&.nome, readonly: true,
+                             class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 cursor-not-allowed sm:text-sm" %>
+          <%= form.hidden_field :team_id %>
+        <% else %>
+          <%= form.select :team_id, options_from_collection_for_select(Team.order(:nome), :id, :nome, quality_case.team_id), 
+                         { prompt: "Selecione a equipe..." }, 
+                         { required: true, id: "team_select", class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" } %>
+        <% end %>
+      </div>
+      
+      <div>
+        <%= form.label :tecnico, "Técnico", class: "block text-sm font-medium text-slate-700" %>
+        <% if quality_case.is_readonly? %>
+          <%= form.text_field :tecnico, readonly: true,
+                             class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 cursor-not-allowed sm:text-sm" %>
+        <% else %>
+          <%= form.select :tecnico, [], { prompt: "Selecione primeiro a equipe..." }, 
+                         { required: true, id: "technician_select", 
+                           data: { selected_value: quality_case.tecnico },
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" } %>
+        <% end %>
+      </div>
+      
+      <div>
+        <%= form.label :cliente, "Solicitante", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :cliente, required: true, readonly: quality_case.is_readonly?,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.is_readonly?}" %>
+      </div>
+      
+      <div>
+        <%= form.label :empresa, "Empresa", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :empresa, required: true, readonly: quality_case.is_readonly?,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.is_readonly?}" %>
+      </div>
+      
+      <div>
+        <%= form.label :data_chamado, "Data do Chamado", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.date_field :data_chamado, required: true, readonly: quality_case.is_readonly?,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.is_readonly?}" %>
+      </div>
+      
+      <div>
+        <%= form.label :data_pesquisa_satisfacao, "Data da Pesquisa de Satisfação", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.date_field :data_pesquisa_satisfacao, required: true, readonly: quality_case.is_readonly?,
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.is_readonly?}" %>
+      </div>
+      
+      <div>
+        <%= form.label :data_registro, "Data de Registro", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.datetime_local_field :data_registro, readonly: true, value: (quality_case.data_registro&.strftime("%Y-%m-%dT%H:%M") || Time.zone.now.strftime("%Y-%m-%dT%H:%M")),
+                                     class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 cursor-not-allowed sm:text-sm" %>
+      </div>
+      
+      <div>
+        <%= form.label :auditor_nome, "Nome do Auditor", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :auditor_nome, readonly: true, value: (quality_case.auditor&.nome || current_operator&.nome),
+                           class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 cursor-not-allowed sm:text-sm" %>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <%= form.label :insatisfacao_cliente, "Insatisfação do Cliente", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.text_area :insatisfacao_cliente, rows: 4, readonly: quality_case.is_readonly?,
+                        class: "mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm #{'bg-gray-100 cursor-not-allowed' if quality_case.is_readonly?}" %>
+    </div>
+  </div>
+
+  <!-- Botões baseados no status -->
+  <div class="flex justify-end gap-4 mt-8">
+    <%= link_to "Cancelar", quality_cases_path, 
+               class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    
+    <% if quality_case.status == "Novo" || quality_case.new_record? %>
+      <%= form.submit "Enviar para Contato", 
+                     class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700" %>
+    <% end %>
+  </div>
+<% end %>
+
+<% unless quality_case.is_readonly? %>
+<script>
+// Carregar técnicos por equipe
+function initializeTeamTechnicianSelect() {
+  const teamSelect = document.getElementById('team_select');
+  const technicianSelect = document.getElementById('technician_select');
+  
+  if (!teamSelect || !technicianSelect) return;
+  
+  // Não inicializar se campos estão readonly (edição)
+  if (teamSelect.readOnly || technicianSelect.readOnly) return;
+  
+  // Carregar técnicos se já houver equipe selecionada (edição)
+  if (teamSelect.value) {
+    loadTechnicians(teamSelect.value, technicianSelect.dataset.selectedValue);
+  }
+  
+  teamSelect.addEventListener('change', function() {
+    const teamId = this.value;
+    
+    if (!teamId) {
+      technicianSelect.innerHTML = '<option value="">Selecione primeiro a equipe...</option>';
+      return;
+    }
+    
+    loadTechnicians(teamId);
+  });
+}
+
+function loadTechnicians(teamId, selectedValue = null) {
+  const technicianSelect = document.getElementById('technician_select');
+  
+  fetch(`/operators_by_team/${teamId}`)
+    .then(response => response.json())
+    .then(operators => {
+      technicianSelect.innerHTML = '<option value="">Selecione o técnico...</option>';
+      operators.forEach(op => {
+        const option = document.createElement('option');
+        option.value = op.nome;
+        option.textContent = op.nome;
+        if (selectedValue && op.nome === selectedValue) {
+          option.selected = true;
+        }
+        technicianSelect.appendChild(option);
+      });
+    })
+    .catch(error => {
+      console.error('Erro ao carregar operadores:', error);
+      technicianSelect.innerHTML = '<option value="">Erro ao carregar operadores</option>';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initializeTeamTechnicianSelect);
+document.addEventListener('turbo:load', initializeTeamTechnicianSelect);
+</script>
+<% end %>

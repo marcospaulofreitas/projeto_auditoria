@@ -1,0 +1,35 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  numero_chamado: MyString
+  tecnico: MyString
+  cliente: MyString
+  data_chamado: 2025-09-03
+  data_avaliacao: 2025-09-03
+  status: MyString
+  insatisfacao_cliente: MyText
+  data_contato: 2025-09-03
+  hora_contato: 2025-09-03 08:56:15
+  contato_com: MyString
+  feedback_cliente: MyText
+  analise_qualidade: MyText
+  acoes_corretivas: MyText
+  retorno_cliente: MyText
+  retorno_gestor: MyText
+
+two:
+  numero_chamado: MyString
+  tecnico: MyString
+  cliente: MyString
+  data_chamado: 2025-09-03
+  data_avaliacao: 2025-09-03
+  status: MyString
+  insatisfacao_cliente: MyText
+  data_contato: 2025-09-03
+  hora_contato: 2025-09-03 08:56:15
+  contato_com: MyString
+  feedback_cliente: MyText
+  analise_qualidade: MyText
+  acoes_corretivas: MyText
+  retorno_cliente: MyText
+  retorno_gestor: MyText

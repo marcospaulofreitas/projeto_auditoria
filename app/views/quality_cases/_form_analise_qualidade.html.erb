@@ -1,0 +1,96 @@
+<%# _form_analise_qualidade.html.erb %>
+<%= form_with model: @quality_case, local: true, url: analise_qualidade_quality_case_path(@quality_case) do |form| %>
+  <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-8 max-w-6xl mx-auto">
+    <h2 class="text-2xl font-bold text-slate-900 mb-8 text-center">Análise da Qualidade</h2>
+
+    <!-- Informações do Caso (Readonly) -->
+    <div class="bg-slate-50 border border-slate-200 rounded-md p-6 mb-6">
+      <h3 class="text-lg font-medium text-slate-700 mb-4">Informações do Caso</h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <span class="font-medium text-slate-600">Chamado:</span>
+          <p class="text-slate-900"><%= @quality_case.numero_chamado %></p>
+        </div>
+        <div>
+          <span class="font-medium text-slate-600">Cliente:</span>
+          <p class="text-slate-900"><%= @quality_case.cliente %></p>
+        </div>
+        <div>
+          <span class="font-medium text-slate-600">Técnico:</span>
+          <p class="text-slate-900"><%= @quality_case.tecnico %></p>
+        </div>
+        <div>
+          <span class="font-medium text-slate-600">Equipe:</span>
+          <p class="text-slate-900"><%= @quality_case.team&.nome %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <% if @quality_case.analise_started_at %>
+      <div class="bg-amber-50 border border-amber-200 rounded-md p-4 mb-6">
+        <div class="flex items-center">
+          <span class="text-amber-800 font-medium">⏱ Tempo decorrido: </span>
+          <span class="ml-2 text-amber-900 font-bold" data-controller="timer" data-timer-start-time-value="<%= @quality_case.analise_started_at.to_i * 1000 %>" data-timer-limit-value="7200">
+            00:00
+          </span>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Formulário de Análise -->
+    <div class="space-y-6">
+      <!-- Análise de Atendimento -->
+      <div class="bg-blue-50 border border-blue-200 rounded-md p-6">
+        <h3 class="text-lg font-medium text-blue-800 mb-4">Análise de Atendimento</h3>
+        <p class="text-sm text-blue-700 mb-4">Avalie: comunicação, agilidade, proatividade, atenção, cordialidade</p>
+        <%= form.text_area :analise_atendimento, rows: 4, 
+                          placeholder: "Descreva a análise do atendimento prestado pelo técnico...",
+                          class: "w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" %>
+      </div>
+
+      <!-- Análise de Conhecimento -->
+      <div class="bg-green-50 border border-green-200 rounded-md p-6">
+        <h3 class="text-lg font-medium text-green-800 mb-4">Análise de Conhecimento</h3>
+        <p class="text-sm text-green-700 mb-4">Identifique: erros técnicos ou falta de conhecimento</p>
+        <%= form.text_area :analise_conhecimento, rows: 4,
+                          placeholder: "Descreva questões relacionadas ao conhecimento técnico...",
+                          class: "w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" %>
+      </div>
+
+      <!-- Análise Procedimental -->
+      <div class="bg-purple-50 border border-purple-200 rounded-md p-6">
+        <h3 class="text-lg font-medium text-purple-800 mb-4">Análise Procedimental</h3>
+        <p class="text-sm text-purple-700 mb-4">Avalie: cumprimento dos protocolos internos</p>
+        <%= form.text_area :analise_procedimental, rows: 4,
+                          placeholder: "Descreva o cumprimento dos procedimentos e protocolos...",
+                          class: "w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" %>
+      </div>
+
+      <!-- Ações Corretivas -->
+      <div class="bg-orange-50 border border-orange-200 rounded-md p-6">
+        <h3 class="text-lg font-medium text-orange-800 mb-4">Ações Corretivas Propostas</h3>
+        <p class="text-sm text-orange-700 mb-4">Defina as ações necessárias para correção dos problemas identificados</p>
+        <%= form.text_area :acoes_corretivas_propostas, rows: 4,
+                          placeholder: "Descreva as ações corretivas propostas...",
+                          class: "w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" %>
+      </div>
+    </div>
+
+    <!-- Campos Automáticos (Hidden) -->
+    <%= form.hidden_field :data_registro, value: Time.current %>
+  </div>
+
+  <!-- Botões -->
+  <div class="flex justify-end gap-4 mt-6 max-w-6xl mx-auto">
+    <%= link_to "Cancelar", quality_cases_path, 
+               class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    
+    <%= form.submit "Salvar", 
+                   class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700" %>
+    
+    <%= form.submit "Finalizar", 
+                   name: "commit", value: "Finalizar",
+                   class: "px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700" %>
+  </div>
+<% end %>
