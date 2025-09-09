@@ -1,14 +1,14 @@
 class TeamsController < ApplicationController
-  before_action :set_team, only: [:show, :edit, :update, :destroy]
+  before_action :set_team, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @teams = Team.all
-    
+
     # Filtro por nome
     if params[:nome].present?
       @teams = @teams.where("LOWER(nome) LIKE ?", "%#{params[:nome].downcase}%")
     end
-    
+
     @teams = @teams.order(:nome)
   end
 
@@ -21,9 +21,9 @@ class TeamsController < ApplicationController
 
   def create
     @team = Team.new(team_params)
-    
+
     if @team.save
-      redirect_to teams_path, notice: 'Equipe criada com sucesso.'
+      redirect_to teams_path, notice: "Equipe criada com sucesso."
     else
       render :new, status: :unprocessable_entity
     end
@@ -34,7 +34,7 @@ class TeamsController < ApplicationController
 
   def update
     if @team.update(team_params)
-      redirect_to teams_path, notice: 'Equipe atualizada com sucesso.'
+      redirect_to teams_path, notice: "Equipe atualizada com sucesso."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -42,7 +42,7 @@ class TeamsController < ApplicationController
 
   def destroy
     @team.destroy
-    redirect_to teams_path, notice: 'Equipe excluída com sucesso.'
+    redirect_to teams_path, notice: "Equipe excluída com sucesso."
   end
 
   private

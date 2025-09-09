@@ -5,9 +5,9 @@ class Operator < ApplicationRecord
 
   validates :nome, :email, :funcao, presence: true
   validates :email, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :funcao, inclusion: { in: ['Gestor', 'Auditor da Qualidade', 'Tecnico do Suporte'] }
+  validates :funcao, inclusion: { in: [ "Gestor", "Auditor da Qualidade", "Tecnico do Suporte" ] }
 
-  scope :auditores, -> { where(funcao: 'Auditor') }
-  scope :gestores, -> { where(funcao: 'Gestor') }
-  scope :tecnicos, -> { where(funcao: 'Tecnico') }
+  scope :auditores, -> { where(funcao: "Auditor") }
+  scope :gestores, -> { where(funcao: "Gestor") }
+  scope :tecnicos, -> { where(funcao: "Tecnico") }
 end

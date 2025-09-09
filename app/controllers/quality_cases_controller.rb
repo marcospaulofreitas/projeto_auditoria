@@ -1,5 +1,5 @@
 class QualityCasesController < ApplicationController
-  before_action :set_quality_case, only: [:show, :edit, :update, :destroy, :gestao, :aprovar, :recusar, :pos_recusa, :reanalisar, :manter_avaliacao, :retorno_cliente, :registrar_retorno, :realizar_contato, :registrar_contato, :realizar_analise, :analise_qualidade]
+  before_action :set_quality_case, only: [ :show, :edit, :update, :destroy, :gestao, :aprovar, :recusar, :pos_recusa, :reanalisar, :manter_avaliacao, :retorno_cliente, :registrar_retorno, :realizar_contato, :registrar_contato, :realizar_analise, :analise_qualidade ]
 
   def index
     @all_cases = QualityCase.all
@@ -7,7 +7,7 @@ class QualityCasesController < ApplicationController
     @quality_cases = @quality_cases.by_tecnico(params[:tecnico]) if params[:tecnico].present?
     @quality_cases = @quality_cases.by_status(params[:status]) if params[:status].present?
     @quality_cases = @quality_cases.order(created_at: :desc)
-    
+
     @tecnicos = QualityCase.distinct.pluck(:tecnico).compact.sort
     @kpis = calculate_kpis(@all_cases)
     @chart_data = generate_chart_data(@all_cases)
@@ -23,11 +23,11 @@ class QualityCasesController < ApplicationController
   def create
     @quality_case = QualityCase.new(quality_case_params)
     @quality_case.auditor = current_operator
-    
+
     if params[:commit] == "Enviar para Contato"
       @quality_case.status = "Aguardando contato"
     end
-    
+
     if @quality_case.save
       if @quality_case.status == "Aguardando Contato"
         @quality_case.start_timer_for_status(@quality_case.status)
@@ -43,13 +43,13 @@ class QualityCasesController < ApplicationController
 
   def update
     old_status = @quality_case.status
-    
+
     if @quality_case.update(quality_case_params)
       # Iniciar timer se mudou de status
       if old_status != @quality_case.status
         @quality_case.start_timer_for_status(@quality_case.status)
       end
-      
+
       @quality_case.auto_transition_status!
       redirect_to @quality_case
     else
@@ -61,75 +61,75 @@ class QualityCasesController < ApplicationController
     @quality_case.destroy
     redirect_to quality_cases_path
   end
-  
+
   def gestao
     @quality_case = QualityCase.find(params[:id])
     # Verificar se é gestor da equipe
-    unless current_operator.funcao == 'Gestor' && @quality_case.team_id == current_operator.team_id
+    unless current_operator.funcao == "Gestor" && @quality_case.team_id == current_operator.team_id
       redirect_to quality_cases_path
       return
     end
-    render 'form_gestao'
+    render "form_gestao"
   end
-  
+
   def aprovar
     @quality_case = QualityCase.find(params[:id])
-    
+
     if @quality_case.update(gestao_params.merge(status: "Concluído"))
       redirect_to quality_cases_path
     else
-      render 'form_gestao', status: :unprocessable_entity
+      render "form_gestao", status: :unprocessable_entity
     end
   end
-  
+
   def recusar
     @quality_case = QualityCase.find(params[:id])
-    
+
     if @quality_case.update(gestao_params.merge(status: "Recusada pelo Gestor"))
       redirect_to quality_cases_path
     else
-      render 'form_gestao', status: :unprocessable_entity
+      render "form_gestao", status: :unprocessable_entity
     end
   end
-  
+
   def pos_recusa
     @quality_case = QualityCase.find(params[:id])
-    render 'form_pos_recusa'
+    render "form_pos_recusa"
   end
-  
+
   def reanalisar
     @quality_case = QualityCase.find(params[:id])
-    
+
     if @quality_case.update(pos_recusa_params.merge(status: "Reanalisado"))
       # Volta para aguardando aprovação
       @quality_case.update_column(:status, "Aguardando aprovação do gestor")
       redirect_to quality_cases_path
     else
-      render 'form_pos_recusa', status: :unprocessable_entity
+      render "form_pos_recusa", status: :unprocessable_entity
     end
   end
-  
+
   def manter_avaliacao
     @quality_case = QualityCase.find(params[:id])
-    
+
     if @quality_case.update(pos_recusa_params.merge(status: "Avaliação Mantida"))
       redirect_to quality_cases_path
     else
-      render 'form_pos_recusa', status: :unprocessable_entity
+      render "form_pos_recusa", status: :unprocessable_entity
     end
   end
-  
+
   def retorno_cliente
     @quality_case = QualityCase.find(params[:id])
-    render 'form_retorno_cliente'
+    render "form_retorno_cliente"
   end
-  
+
   def registrar_retorno
     @quality_case = QualityCase.find(params[:id])
     @contact = @quality_case.contacts.build(contact_params)
     @contact.data_contato = Date.current
     @contact.hora_contato = Time.current
-    
+
     if @contact.save
       case params[:action]
       when "retorno_sucesso"
@@ -142,23 +142,23 @@ class QualityCasesController < ApplicationController
       when "enviar_gestao"
         @quality_case.update_column(:status, "Aguardando aprovação do gestor")
       end
-      
+
       redirect_to quality_cases_path
     else
-      render 'form_retorno_cliente', status: :unprocessable_entity
+      render "form_retorno_cliente", status: :unprocessable_entity
     end
   end
-  
+
   def realizar_contato
     @quality_case = QualityCase.find(params[:id])
   end
-  
+
   def registrar_contato
     @quality_case = QualityCase.find(params[:id])
     @contact = @quality_case.contacts.build(contact_params)
     @contact.data_contato = Date.current
     @contact.hora_contato = Time.current
-    
+
     if @contact.save
       case params[:commit]
       when "Salvar Sucesso"
@@ -179,27 +179,27 @@ class QualityCasesController < ApplicationController
         else
           @quality_case.increment!(:contatos_sucesso)
         end
-        
+
         @quality_case.update!(
           status: "Em análise pela Qualidade"
         )
         @quality_case.start_timer_for_status("Em análise pela Qualidade")
       end
-      
+
       @quality_case.auto_transition_status!
       redirect_to quality_cases_path
     else
-      render 'realizar_contato', status: :unprocessable_entity
+      render "realizar_contato", status: :unprocessable_entity
     end
   end
-  
+
   def realizar_analise
     @quality_case = QualityCase.find(params[:id])
   end
-  
+
   def analise_qualidade
     @quality_case = QualityCase.find(params[:id])
-    
+
     if @quality_case.update(analise_params)
       case params[:commit]
       when "Salvar"
@@ -211,7 +211,7 @@ class QualityCasesController < ApplicationController
         redirect_to quality_cases_path
       end
     else
-      render 'form_analise_qualidade', status: :unprocessable_entity
+      render "form_analise_qualidade", status: :unprocessable_entity
     end
   end
 
@@ -222,12 +222,12 @@ class QualityCasesController < ApplicationController
   end
 
   def quality_case_params
-    params.require(:quality_case).permit(:numero_chamado, :tecnico, :cliente, :empresa, :data_chamado, 
-                                       :data_pesquisa_satisfacao, :status, :insatisfacao_cliente, 
+    params.require(:quality_case).permit(:numero_chamado, :tecnico, :cliente, :empresa, :data_chamado,
+                                       :data_pesquisa_satisfacao, :status, :insatisfacao_cliente,
                                        :analise_atendimento, :analise_conhecimento, :analise_procedimental,
-                                       :acoes_corretivas_propostas, :acoes_adotadas, :motivo_recusa, 
+                                       :acoes_corretivas_propostas, :acoes_adotadas, :motivo_recusa,
                                        :informacoes_reanalise, :motivo_manutencao, :team_id,
-                                       contacts_attributes: [:id, :data_contato, :hora_contato, :contato_com, :registro_contato, :_destroy])
+                                       contacts_attributes: [ :id, :data_contato, :hora_contato, :contato_com, :registro_contato, :_destroy ])
   end
 
   def calculate_kpis(cases)
@@ -238,7 +238,7 @@ class QualityCasesController < ApplicationController
       em_analise: cases.where(status: "Em análise pela Qualidade").count,
       aguardando_retorno: cases.where(status: "Aguardando retorno ao cliente").count,
       aguardando_aprovacao: cases.where(status: "Aguardando aprovação do gestor").count,
-      concluidos: cases.where(status: ["Concluído", "Avaliação Mantida"]).count
+      concluidos: cases.where(status: [ "Concluído", "Avaliação Mantida" ]).count
     }
   end
 
@@ -248,19 +248,19 @@ class QualityCasesController < ApplicationController
       status: cases.group(:status).count
     }
   end
-  
+
   def contact_params
     params.require(:contact).permit(:contato_com, :registro_contato)
   end
-  
+
   def analise_params
     params.require(:quality_case).permit(:analise_atendimento, :analise_conhecimento, :analise_procedimental, :acoes_corretivas_propostas)
   end
-  
+
   def gestao_params
     params.require(:quality_case).permit(:acoes_adotadas, :motivo_recusa)
   end
-  
+
   def pos_recusa_params
     params.require(:quality_case).permit(:informacoes_reanalise, :motivo_manutencao)
   end

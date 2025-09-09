@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
   root "quality_cases#index"
-  
+
   get "login", to: "sessions#new"
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy"
-  
+
   resources :quality_cases do
     member do
       get :gestao
@@ -23,8 +23,8 @@ Rails.application.routes.draw do
   end
   resources :teams
   resources :operators
-  
+
   get "operators_by_team/:team_id", to: "operators#by_team", as: :operators_by_team
-  
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

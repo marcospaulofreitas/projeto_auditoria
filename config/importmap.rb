@@ -10,4 +10,3 @@ pin "multi_select_controller", to: "controllers/multi_select_controller.js"
 
 # Re-add this line to map the 'controllers' namespace
 pin_all_from "app/javascript/controllers", under: "controllers"
-
