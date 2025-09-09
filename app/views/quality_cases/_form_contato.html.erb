@@ -33,11 +33,11 @@
 
   <!-- Timer -->
   <% if @quality_case.contato_started_at %>
-    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
+    <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-6 timer-container">
       <div class="flex items-center">
-        <span class="text-yellow-800 font-medium">⏱ Tempo decorrido: </span>
-        <span class="ml-2 text-yellow-900 font-bold" data-controller="timer" data-timer-start-time-value="<%= @quality_case.contato_started_at.to_i * 1000 %>" data-timer-limit-value="1800">
-          00:00
+        <span class="text-green-800 font-medium timer-label">⏱ Tempo decorrido: </span>
+        <span class="ml-2 text-green-900 font-bold timer-display" data-start-time="<%= @quality_case.contato_started_at.to_i %>">
+          00:00:00
         </span>
       </div>
     </div>
@@ -144,6 +144,47 @@
 </div>
 
 <script>
+// Timer com cores para página de contato
+function updateContactTimer() {
+  const timerDisplay = document.querySelector('.timer-display');
+  const timerContainer = document.querySelector('.timer-container');
+  const timerLabel = document.querySelector('.timer-label');
+  
+  if (timerDisplay) {
+    const startTime = parseInt(timerDisplay.dataset.startTime);
+    if (startTime) {
+      const now = Math.floor(Date.now() / 1000);
+      const elapsed = now - startTime;
+      
+      const hours = Math.floor(elapsed / 3600);
+      const minutes = Math.floor((elapsed % 3600) / 60);
+      const seconds = elapsed % 60;
+      
+      const timeText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      timerDisplay.textContent = timeText;
+      
+      // Mudar cor baseado no tempo
+      if (elapsed > 1800) {
+        // Vermelho se passou de 30 minutos
+        timerContainer.className = 'bg-red-50 border border-red-200 rounded-md p-4 mb-6 timer-container';
+        timerLabel.className = 'text-red-800 font-medium timer-label';
+        timerDisplay.className = 'ml-2 text-red-900 font-bold timer-display';
+      } else {
+        // Verde se abaixo de 30 minutos
+        timerContainer.className = 'bg-green-50 border border-green-200 rounded-md p-4 mb-6 timer-container';
+        timerLabel.className = 'text-green-800 font-medium timer-label';
+        timerDisplay.className = 'ml-2 text-green-900 font-bold timer-display';
+      }
+    }
+  }
+}
+
+// Atualizar timer a cada segundo
+setInterval(updateContactTimer, 1000);
+
+// Executar imediatamente
+updateContactTimer();
+
 // Controlar botões baseado no tipo de contato
 function toggleButtons() {
   const sucessoRadio = document.getElementById('contato_sucesso');
