@@ -3,7 +3,7 @@ require "test_helper"
 class OperatorsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @operator = operators(:one)
-    post login_url, params: { email: @operator.email, password: 'password' }
+    post login_url, params: { email: @operator.email, password: "password" }
     follow_redirect!
   end
 

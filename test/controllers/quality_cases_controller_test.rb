@@ -4,7 +4,7 @@ class QualityCasesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @quality_case = quality_cases(:one)
     @operator = operators(:one)
-    post login_url, params: { email: @operator.email, password: 'password' }
+    post login_url, params: { email: @operator.email, password: "password" }
     follow_redirect!
   end
 

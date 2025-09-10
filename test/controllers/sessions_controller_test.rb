@@ -7,7 +7,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get create" do
-    post login_url, params: { email: operators(:one).email, password: 'password' }
+    post login_url, params: { email: operators(:one).email, password: "password" }
     assert_redirected_to root_path
   end
 

@@ -22,7 +22,7 @@ Rails.application.routes.draw do
     end
   end
   resources :teams do
-    resources :team_memberships, only: [:new, :create, :destroy]
+    resources :team_memberships, only: [ :new, :create, :destroy ]
   end
   resources :operators
 

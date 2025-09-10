@@ -4,7 +4,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @team = teams(:one)
     @operator = operators(:one)
-    post login_url, params: { email: @operator.email, password: 'password' }
+    post login_url, params: { email: @operator.email, password: "password" }
     follow_redirect!
   end
 
