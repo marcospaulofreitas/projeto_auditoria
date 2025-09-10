@@ -21,7 +21,9 @@ Rails.application.routes.draw do
       patch :analise_qualidade
     end
   end
-  resources :teams
+  resources :teams do
+    resources :team_memberships, only: [:new, :create, :destroy]
+  end
   resources :operators
 
   get "operators_by_team/:team_id", to: "operators#by_team", as: :operators_by_team
